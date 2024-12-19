@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./cgi-bin:/usr/lib/cgi-bin
+      - ./index.html:/var/www/html/index.html
+      - ./css:/var/www/html/css
+      - ./js:/var/www/html/js:ro
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: pweb1
+      DB_USER: alumno
+      DB_PASSWORD: pweb1
+
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: pweb1
+      MYSQL_DATABASE: pweb1
+      MYSQL_USER: alumno
+      MYSQL_PASSWORD: pweb1
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+
+volumes:
+  db_data:
