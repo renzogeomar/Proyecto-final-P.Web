@@ -4,14 +4,21 @@ use warnings;
 use CGI;
 use DBI;
 use HTML::Entities;  # Para manejar caracteres especiales
+use URI::Escape;
 
 my $q = CGI->new;
 print $q->header('text/xml;charset=UTF-8');
 
+print STDERR "RAW QUERY STRING: " . $q->query_string . "\n";
 # Obtener parámetros del formulario
 my $title = $q->param('title');
 my $text = $q->param('text');
 my $owner = $q->param('owner');
+
+# Decodificar los parámetros para manejar caracteres especiales
+$title = uri_unescape($title);
+$text = uri_unescape($text);
+$owner = uri_unescape($owner);
 
 # Depuración: Ver los valores recibidos antes de cualquier modificación
 print STDERR "Valores recibidos antes de modificación - Title: '$title', Text: '$text', Owner: '$owner'\n";

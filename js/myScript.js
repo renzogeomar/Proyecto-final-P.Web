@@ -386,9 +386,9 @@ function responseEdit(xml){
 function doUpdate(title){
   let texto = document.getElementById('cuadrotext').value;
   console.log("es el texto a actualizar", texto);
-  let url1 = 'cgi-bin/update.pl?title=' + title + '&text=';
+  let url1 = 'cgi-bin/update.pl?title=' + encodeURIComponent(title) + '&text=';
   let textoencode = encodeURIComponent(texto);  // Asegúrate de que los saltos de línea y caracteres especiales estén bien codificados
-  let url3 = '&owner=' + userKey;
+  let url3 = '&owner=' + encodeURIComponent(userKey);
   let urlcomple = url1 + textoencode + url3;
   
   // Depuración: Imprime la URL completa antes de enviarla
