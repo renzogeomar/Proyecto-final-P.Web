@@ -27,17 +27,47 @@ function doLogin(){
   console.log('URL:', `cgi-bin/login.pl?user=${user}&password=${password}`);
   let url = 'cgi-bin/login.pl?user='+user+'&password='+password;
   console.log(url);
-  var xml;
-  let promise = fetch(url);
-  promise.then(response=>response.text()).then(data=>
-    {
-      xml = (new window.DOMParser()).parseFromString(data, "text/xml");
-      console.log(xml);
-      loginResponse(xml) ;
-    }).catch(error=>{
-      console.log('Error :', error);
-    });
 
+  fetch(url)
+    .then(response => response.text())
+    .then(data => {
+      let xml = (new window.DOMParser()).parseFromString(data, "text/xml");
+      loginResponse(xml);
+
+      // Verificación de la sesión
+      if (xml.getElementsByTagName('session')[0]?.textContent === 'valid') {
+        // Invocar a session_manager.pl para manejar la sesión si es válida
+        fetch('cgi-bin/session_manager.pl?action=start&user=' + user)
+          .then(res => res.text())
+          .then(sessionData => {
+            console.log('Session started:', sessionData);
+            showLoggedIn();
+          })
+          .catch(error => console.log('Error al manejar sesión:', error));
+      }
+    })
+    .catch(error => {
+      console.log('Error:', error);
+    });
+}
+function showLoggedIn() {
+  // Invocar a session_manager.pl para verificar el estado de la sesión
+  fetch('cgi-bin/session_manager.pl?action=check')
+    .then(response => response.text())
+    .then(sessionData => {
+      if (sessionData === 'valid') {
+        document.getElementById('userName').innerHTML = userFullName;
+        showWelcome();
+        showMenuUserLogged();
+      } else {
+        // Manejar sesión no válida (redirección, etc.)
+        console.log('Session not valid, redirecting...');
+        window.location.href = 'login.html';
+      }
+    })
+    .catch(error => {
+      console.log('Error al verificar sesión:', error);
+    });
 }
 /**
  * Esta función recibe una respuesta en un objeto XML
@@ -60,17 +90,23 @@ function loginResponse(xml) {
       userKey = owner;
       showLoggedIn(); // Esta función debería mostrar el contenido para un usuario logueado
     } else {
-      document.getElementById('mensaje').innerHTML = "Datos incorrectos";
-      showLogin();
+      var mensajeElem = document.getElementById('mensaje');
+      if (mensajeElem) {
+        mensajeElem.innerHTML = "Datos incorrectos"; // Solo si el elemento existe
+        showLogin();
+      }
     }
   } else {
-    document.getElementById('mensaje').innerHTML = "Datos incorrectos";
-    showLogin();
+      var mensajeElem = document.getElementById('mensaje');
+      if (mensajeElem) {
+        mensajeElem.innerHTML = "Datos incorrectos"; // Solo si el elemento existe
+        showLogin();
+      }
   }
   
   // Agregar estas líneas para ver el contenido del XML y el mensaje
   console.log('Validación del XML:', xml);
-  console.log('Mensaje:', document.getElementById('mensaje').innerHTML);
+  console.log('Mensaje:', mensajeElem ? mensajeElem.innerHTML : 'mensaje element not found');
 }
 /**
  * esta función usa la variable userFullName, para actualizar el

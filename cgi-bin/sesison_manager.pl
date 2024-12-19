@@ -4,33 +4,37 @@ use warnings;
 use CGI;
 use CGI::Session;
 
+# Crear el objeto CGI
 my $q = CGI->new;
+print $q->header('text/xml;charset=UTF-8');
 
-# Recuperar la sesión
-my $session = CGI::Session->load();
+my $session_id = $q->param('session_id');
+my $action = $q->param('action');
 
-# Verificar si la sesión es válida
-if ($session) {
-    my $user_data = $session->param('user_data');
-    if ($user_data) {
-        print $q->header('text/xml;charset=UTF-8');
-        print renderXML($user_data);
+if ($session_id) {
+    my $session = CGI::Session->load($session_id, { Directory => '/tmp' });
+    
+    if ($session) {
+        if ($action eq 'verifySession') {
+            # Verificación de sesión
+            print renderXML('<message>Sesión válida</message>');
+        } else {
+            # Manejo de otras acciones como cerrar sesión, actualizar datos, etc.
+        }
     } else {
-        print $q->header('text/xml;charset=UTF-8');
-        print renderXML('<message>No hay datos de usuario en la sesión</message>');
+        print renderXML('<message>Sesión no válida o caducada</message>');
     }
 } else {
-    print $q->header('text/xml;charset=UTF-8');
-    print renderXML('<message>No se ha iniciado sesión o la sesión ha expirado</message>');
+    print renderXML('<message>Falta el session_id</message>');
 }
 
 sub renderXML {
-    my $cuerpoxml = $_[0];
+    my $message = $_[0];
     my $xml = <<"XML";
 <?xml version='1.0' encoding='UTF-8'?>
-<session>
-    $cuerpoxml
-</session>
+<response>
+    $message
+</response>
 XML
     return $xml;
 }

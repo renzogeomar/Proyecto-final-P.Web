@@ -34,7 +34,6 @@ RUN echo '<VirtualHost *:80>\n\
         Options +ExecCGI\n\
         AddHandler cgi-script .pl\n\
         Require all granted\n\
-        SetEnv CGISESSID /tmp/session_data
     </Directory>\n\
     <Directory "/var/www/html">\n\
         AllowOverride All\n\

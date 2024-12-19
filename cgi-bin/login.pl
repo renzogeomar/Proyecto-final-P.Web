@@ -5,6 +5,7 @@ use CGI;
 use DBI;
 use CGI::Session;
 
+# Crear el objeto CGI
 my $q = CGI->new;
 print $q->header('text/xml;charset=UTF-8');
 
@@ -20,15 +21,15 @@ my $db_name = $ENV{'DB_NAME'} || 'pweb1';
 my $db_user = $ENV{'DB_USER'} || 'alumno';
 my $db_password = $ENV{'DB_PASSWORD'} || 'pweb1';
 
-my @respuesta;
+my $respuesta;  # Corregido para declarar la variable
+
 if (defined($user) and defined($password)) {
-    @respuesta = checkLogin($user, $password);
-    print STDERR "Respuesta de checkLogin: @respuesta\n";  # Mostrar resultados de checkLogin
+    $respuesta = checkLogin($user, $password);
+    print STDERR "Respuesta de checkLogin: @$respuesta\n";  # Mostrar resultados de checkLogin
     
-    if (@respuesta) {
-        print STDERR "Enviando datos correctos al XML\n";
-        my $session_id = startSession(@respuesta);
-        #my $cuerpoXML = renderCuerpo(@respuesta);
+    if (@$respuesta) {
+        print STDERR "Iniciando sesión y enviando datos correctos al XML\n";
+        my $session_id = startSession(@$respuesta);
         print renderXML($respuesta, $session_id);
     } else {
         print STDERR "No hay coincidencias, enviando mensaje de error\n";
@@ -59,21 +60,21 @@ sub checkLogin {
     $sth->finish;
     $dbh->disconnect;
 
-    return @row;
+    return \@row;  # Cambiado para retornar referencia al array
 }
 
 sub startSession {
-    my @user_data = @_;
+    my $user_data_ref = shift;  # Referencia a los datos del usuario
     my $session = CGI::Session->new("driver:File", undef, { Directory => '/tmp' })
         or die "No se pudo crear la sesión: $!";
 
-    $session->param('user_data', \@user_data);
+    $session->param('user_data', $user_data_ref);  # Guardar datos en sesión
     return $session->id;
 }
 
 sub renderXML {
     my ($linea_ref, $session_id) = @_;
-    my @linea = @{$linea_ref};
+    my @linea = @{$linea_ref};  # Referencia dereferenciada
     my $cuerpoxml = <<"CUERPO";
     <user>
         <owner>$linea[0]</owner>
@@ -84,24 +85,3 @@ sub renderXML {
 CUERPO
     return $cuerpoxml;
 }
-
-#sub renderCuerpo {
-#    my @linea = @_;
-#   my $cuerpo = <<"CUERPO";
-#    <owner>$linea[0]</owner>
-#    <firstName>$linea[2]</firstName>
-#    <lastName>$linea[3]</lastName>
-#CUERPO
-#    return $cuerpo;
-#}
-
-#sub renderXML {
-#    my $cuerpoxml = $_[0];
-#    my $xml = <<"XML";
-#<?xml version='1.0' encoding='UTF-8'?>
-#<user>
-#    $cuerpoxml
-#</user>
-#XML
-#    return $xml;
-#}
