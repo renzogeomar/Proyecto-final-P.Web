@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use CGI;
 use DBI;
+use CGI::Session;
 
 my $q = CGI->new;
 print $q->header('text/xml;charset=UTF-8');
@@ -26,8 +27,9 @@ if (defined($user) and defined($password)) {
     
     if (@respuesta) {
         print STDERR "Enviando datos correctos al XML\n";
-        my $cuerpoXML = renderCuerpo(@respuesta);
-        print renderXML($cuerpoXML);
+        my $session_id = startSession(@respuesta);
+        #my $cuerpoXML = renderCuerpo(@respuesta);
+        print renderXML($respuesta, $session_id);
     } else {
         print STDERR "No hay coincidencias, enviando mensaje de error\n";
         print renderXML('<message>No se encontraron coincidencias</message>');
@@ -60,23 +62,46 @@ sub checkLogin {
     return @row;
 }
 
-sub renderCuerpo {
-    my @linea = @_;
-    my $cuerpo = <<"CUERPO";
-    <owner>$linea[0]</owner>
-    <firstName>$linea[2]</firstName>
-    <lastName>$linea[3]</lastName>
-CUERPO
-    return $cuerpo;
+sub startSession {
+    my @user_data = @_;
+    my $session = CGI::Session->new("driver:File", undef, { Directory => '/tmp' })
+        or die "No se pudo crear la sesión: $!";
+
+    $session->param('user_data', \@user_data);
+    return $session->id;
 }
 
 sub renderXML {
-    my $cuerpoxml = $_[0];
-    my $xml = <<"XML";
-<?xml version='1.0' encoding='UTF-8'?>
-<user>
-    $cuerpoxml
-</user>
-XML
-    return $xml;
+    my ($linea_ref, $session_id) = @_;
+    my @linea = @{$linea_ref};
+    my $cuerpoxml = <<"CUERPO";
+    <user>
+        <owner>$linea[0]</owner>
+        <firstName>$linea[2]</firstName>
+        <lastName>$linea[3]</lastName>
+        <sessionId>$session_id</sessionId>
+    </user>
+CUERPO
+    return $cuerpoxml;
 }
+
+#sub renderCuerpo {
+#    my @linea = @_;
+#   my $cuerpo = <<"CUERPO";
+#    <owner>$linea[0]</owner>
+#    <firstName>$linea[2]</firstName>
+#    <lastName>$linea[3]</lastName>
+#CUERPO
+#    return $cuerpo;
+#}
+
+#sub renderXML {
+#    my $cuerpoxml = $_[0];
+#    my $xml = <<"XML";
+#<?xml version='1.0' encoding='UTF-8'?>
+#<user>
+#    $cuerpoxml
+#</user>
+#XML
+#    return $xml;
+#}
