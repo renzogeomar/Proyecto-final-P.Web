@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     userName VARCHAR(50) NOT NULL PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
     firstName VARCHAR(50),
-    lastName VARCHAR(50)
+    lastName VARCHAR(50),
+    session_id VARCHAR(255) DEFAULT NULL  -- Nueva columna para el session_id
 );
 
 -- Insertar datos de ejemplo en la tabla usuarios

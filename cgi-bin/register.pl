@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use CGI;
 use DBI;
+use CGI::Session;
 
 # Inicializa el objeto CGI y prepara la cabecera de la respuesta
 my $q = CGI->new;
@@ -30,8 +31,13 @@ my $len = scalar(@parametros);
 my @salida;
 if (validarArray(@parametros) == 4) {
     insertaBD(@parametros);
+    # Crear una nueva sesión para el usuario
+    my $session = CGI::Session->new(undef, $q, { Directory => '/tmp' });
+    my $session_id = $session->id();
+    # Almacenar el session_id en la base de datos
+    storeSessionID($userName, $session_id);
     @salida = @parametros;
-    my $cuerpoXML = renderCuerpo(@salida);
+    my $cuerpoXML = renderCuerpo(@salida, $session_id);
     print renderXML($cuerpoXML);
 } else {
     print renderXML('<message>Faltan datos</message>');
@@ -63,13 +69,33 @@ sub insertaBD {
     $dbh->disconnect;
 }
 
+# Función para almacenar el session_id en la base de datos
+sub storeSessionID {
+    my ($user, $session_id) = @_;
+    
+    # Usamos las variables de entorno para la conexión
+    my $dsn = 'DBI:mysql:database=pweb1;host=db;port=3306';
+    
+    # Intentamos la conexión a la base de datos
+    my $dbh = DBI->connect($dsn, 'alumno', 'pweb1', { RaiseError => 1, PrintError => 0 })
+        or die("No se pudo conectar: $DBI::errstr\n");
+    
+    # Actualizamos el session_id en la base de datos para el usuario
+    my $sql = "UPDATE usuarios SET session_id = ? WHERE userName = ?";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute($session_id, $user);
+    $sth->finish;
+    $dbh->disconnect;
+}
+
 # Función para generar el cuerpo del XML con los datos del usuario
 sub renderCuerpo {
-    my @linea = @_;
+    my (@linea, $session_id) = @_;
     my $cuerpo = <<"CUERPO";
     <owner>$linea[0]</owner>
     <firstName>$linea[2]</firstName>
     <lastName>$linea[3]</lastName>
+    <session_id>$session_id</session_id>
 CUERPO
     return $cuerpo;
 }
