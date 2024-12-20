@@ -3,13 +3,21 @@ use strict;
 use warnings;
 use CGI;
 use DBI;
+use CGI::Session;
 
 my $q = CGI->new;
 print $q->header('text/xml; charset=UTF-8');
 
 # Obtener el parámetro 'owner' del formulario
 my $owner = $q->param('owner');
+my $session_id = $q->param('session_id');
 print STDERR "$owner\n";
+
+# Verificar si el session_id es válido
+if (!defined($session_id) || !is_valid_session($session_id)) {
+    print renderXML("<message>Sesión no válida</message>");
+    exit;
+}
 
 if (defined($owner)) {
     # Buscar artículos en la base de datos
@@ -33,6 +41,29 @@ if (defined($owner)) {
     print STDERR "No se ingresaron datos\n";
     print renderXML("<message>Faltan datos</message>");
 }
+
+sub is_valid_session {
+    my $session_id = $_[0];
+
+    # Aquí deberías implementar la lógica para verificar si el session_id existe en la base de datos
+    # Por ejemplo, consultando si el session_id está asociado a un usuario válido
+
+    my $dsn = 'DBI:mysql:database=pweb1;host=db;port=3306';
+    my $dbh = DBI->connect($dsn, 'alumno', 'pweb1', { RaiseError => 1, PrintError => 0 })
+        or die("No se pudo conectar a la base de datos: $DBI::errstr\n");
+
+    # Verificar si el session_id existe en la base de datos
+    my $sql = "SELECT session_id FROM usuarios WHERE session_id = ?";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute($session_id);
+
+    my $result = $sth->fetchrow_array();
+    $sth->finish;
+    $dbh->disconnect;
+
+    return defined($result);  # Devuelve true si el session_id es válido, false en caso contrario
+}
+
 
 # Función para buscar artículos en la base de datos
 sub buscarBD {

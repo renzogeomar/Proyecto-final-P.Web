@@ -141,15 +141,34 @@ function doCreateAccount(){
   let url = 'cgi-bin/register.pl?userName='+user+'&password='+password+'&firstName='+
     firstName+'&lastName='+lastName;
   console.log(url);
-  var xml;
-  let promise = fetch(url);
-  promise.then(response=>response.text()).then(data=>
-    {
-      xml = (new window.DOMParser()).parseFromString(data, "text/xml");
-      console.log(xml);
-      loginResponse(xml) ;
-    }).catch(error=>{
-      console.log('Error :', error);
+
+  
+  // Realizar la solicitud al CGI 'register.pl'
+  fetch(url)
+    .then(response => response.text())  // Obtener la respuesta como texto
+    .then(data => {
+      console.log("Respuesta del servidor:", data);
+      let xml = (new window.DOMParser()).parseFromString(data, "text/xml");
+      console.log("XML recibido:", xml);
+
+      // Procesar la respuesta XML para verificar si la creación de cuenta fue exitosa
+      let message = xml.getElementsByTagName('message')[0]?.textContent;
+
+      if (message === 'Faltan datos') {
+        console.log("Error: Faltan datos.");
+        document.getElementById('mensaje').innerHTML = "Faltan datos. Por favor, complete todos los campos.";
+      } else {
+        // En este punto, si no falta información, se asume que la cuenta fue creada correctamente
+        console.log("Cuenta creada exitosamente.");
+        document.getElementById('mensaje').innerHTML = "Cuenta creada con éxito.";
+        loginResponse(xml);
+        // Opcional: Redirigir al usuario al login o mostrar un mensaje de éxito
+        //showLogin();  // Esto puede ser reemplazado por la lógica para redirigir a la página de login si es necesario
+      }
+    })
+    .catch(error => {
+      console.log("Error al registrar la cuenta:", error);
+      document.getElementById('mensaje').innerHTML = "Ocurrió un error. Inténtelo de nuevo.";
     });
 }
 /*
