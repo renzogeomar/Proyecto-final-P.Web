@@ -338,8 +338,14 @@ function responseNew(response) {
  */
 function doView(owner, title) {
   console.log('se va a visualizar');
-  let url = 'cgi-bin/view.pl?owner=' + encodeURIComponent(owner) + '&title=' + encodeURIComponent(title);
-  console.log("la url es ", url);
+  let sessionId = sessionStorage.getItem('session_id');
+  if (!sessionId) {
+    showLogin();
+    //sessionId = 'some_unique_session_id'; // Esto podría ser generado o asignado de otra forma
+    //sessionStorage.setItem('session_id', sessionId); // Guardarlo en sessionStorage para futuras peticiones
+  }
+  let url = `cgi-bin/view.pl?owner=${encodeURIComponent(owner)}&title=${encodeURIComponent(title)}&session_id=${encodeURIComponent(sessionId)}`;
+  console.log("La URL es ", url);
 
   let promise = fetch(url);
   promise.then(response => response.text()).then(data => {

@@ -3,23 +3,32 @@ use strict;
 use warnings;
 use CGI;
 use DBI;
-use URI::Escape;  # Para poder usar uri_unescape
+use URI::Escape;
+use CGI::Session;
 
 # Crear el objeto CGI
 my $q = CGI->new;
 # Modificar la cabecera para que la respuesta sea de tipo HTML
 print $q->header('text/html; charset=UTF-8');
 
-# Obtener los parámetros 'owner' y 'title'
+# Obtener los parámetros 'owner', 'title' y 'session_id'
 my $owner = $q->param('owner');
 my $title = $q->param('title');
+my $session_id = $q->param('session_id');  # Nuevo parámetro session_id
 
 # Decodificar los parámetros para manejar caracteres especiales
 $owner = uri_unescape($owner);
 $title = uri_unescape($title);
 
 # Mostrar valores de los parámetros para depuración
-print STDERR "Owner: $owner, Title: $title\n";
+print STDERR "Owner: $owner, Title: $title, Session ID: $session_id\n";
+
+# Verificar si el session_id es válido
+if (defined($session_id) && !es_session_valida($session_id, $owner)) {
+    print STDERR "Sesión inválida o expiró\n";
+    print renderXML("<message>Sesión inválida o expiró</message>");
+    exit;  # Termina la ejecución si la sesión no es válida
+}
 
 my @articlesTex;
 
@@ -55,6 +64,32 @@ if (defined($owner) and defined($title)) {
     print STDERR "No se llenaron todos los campos\n";
     # Generar respuesta XML si faltan parámetros
     print renderXML("<message>Faltan datos en el formulario</message>");
+}
+
+# Función para verificar si el session_id es válido
+sub es_session_valida {
+    my ($session_id, $owner) = @_;
+    
+    my $user = 'alumno';
+    my $password = 'pweb1';
+    my $dsn = 'DBI:MariaDB:database=pweb1;host=db;port=3306';
+
+    # Conectar a la base de datos
+    my $dbh = DBI->connect($dsn, $user, $password, { RaiseError => 1, PrintError => 0 })
+        or die("No se pudo conectar: $DBI::errstr");
+
+    # Verificar si existe el session_id en la base de datos para el owner correspondiente
+    my $sql = "SELECT session_id FROM usuarios WHERE session_id = ? AND userName = ?";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute($session_id, $owner);
+
+    # Si se encuentra un resultado, la sesión es válida
+    my $valid_session = $sth->fetchrow_array;
+    
+    $sth->finish;
+    $dbh->disconnect;
+
+    return defined($valid_session);  # Retorna verdadero si se encuentra el session_id
 }
 
 # Función para interpretar el título (Markdown a HTML)
@@ -134,7 +169,7 @@ sub buscarBD {
     my $title = $_[1];
     my $user = 'alumno';
     my $password = 'pweb1';
-    my $dsn = 'DBI:MariaDB:database=pweb1;host=db;port=3306';  # Ajusta la IP/host según tu configuración
+    my $dsn = 'DBI:MariaDB:database=pweb1;host=db;port=3306';
 
     # Conectar a la base de datos
     my $dbh = DBI->connect($dsn, $user, $password, { RaiseError => 1, PrintError => 0 })
