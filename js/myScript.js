@@ -358,6 +358,7 @@ function doView(owner, title) {
 /*
  * Esta función muestra la respuesta del cgi view.pl en el HTML o 
  * un mensaje de error en caso de algún problema.
+ * nuevooo
  */
 function responseView(response){
   console.log("esta data ha pasado",response);  /*Se tien un objto html traducito*/
