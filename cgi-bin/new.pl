@@ -12,9 +12,17 @@ print $q->header('text/xml;charset=UTF-8');
 my $title = decode('UTF-8', $q->param('title') || '');
 my $text = decode('UTF-8', $q->param('text') || '');
 my $owner = decode('UTF-8', $q->param('owner') || '');
+my $session_id = decode('UTF-8', $q->param('session_id') || '');  # Obtener el session_id
 
 # Imprime los valores recibidos para debug
-print STDERR "Valores recibidos - Title: '$title', Text: '$text', Owner: '$owner'\n";
+print STDERR "Valores recibidos - Title: '$title', Text: '$text', Owner: '$owner', Session ID: '$session_id'\n";
+
+# Verificar si el session_id es válido
+if (!defined($session_id) || !is_valid_session($session_id)) {
+    print STDERR "Sesión no válida.\n";
+    print renderXML("<message>Sesión no válida</message>");
+    exit;
+}
 
 # Almacenar los parámetros en un array para validarlos
 my @parametros = ($title, $text, $owner);
@@ -40,6 +48,28 @@ if (validarArray(@parametros) == 3) {
 } else {
     print STDERR "Faltan campos\n";
     print renderXML("<message>Faltan datos en el formulario</message>");
+}
+
+# Función para validar si el session_id es válido
+sub is_valid_session {
+    my $session_id = $_[0];
+
+    # Aquí deberías implementar la lógica para verificar si el session_id es válido
+    # Por ejemplo, consultando si el session_id está asociado a un usuario válido en la base de datos
+    my $dsn = 'DBI:mysql:database=pweb1;host=db;port=3306';
+    my $dbh = DBI->connect($dsn, 'alumno', 'pweb1', { RaiseError => 1, PrintError => 0 })
+        or die("No se pudo conectar a la base de datos: $DBI::errstr\n");
+
+    # Verificar si el session_id existe en la base de datos
+    my $sql = "SELECT session_id FROM usuarios WHERE session_id = ?";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute($session_id);
+
+    my $result = $sth->fetchrow_array();
+    $sth->finish;
+    $dbh->disconnect;
+
+    return defined($result);  # Devuelve true si el session_id es válido, false en caso contrario
 }
 
 # Función para insertar los datos en la base de datos
