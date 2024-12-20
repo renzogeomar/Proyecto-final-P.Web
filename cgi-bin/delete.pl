@@ -10,8 +10,15 @@ print $q->header('text/xml; charset=UTF-8');
 # Obtener los parámetros 'owner' y 'title' del formulario
 my $owner = $q->param('owner');
 my $title = $q->param('title');
+my $session_id = $q->param('session_id');
 
-print STDERR "$owner.$title\n";  # Depuración: Imprimir los valores
+print STDERR "$owner.$title.$session_id\n";  # Depuración: Imprimir los valores
+
+# Verificar si el session_id es válido
+if (!defined($session_id) || !is_valid_session($session_id)) {
+    print renderXML("<message>Sesión no válida</message>");
+    exit;
+}
 
 if (defined($owner) and defined($title)) {
     print STDERR "Campos llenos\n";
@@ -34,6 +41,27 @@ if (defined($owner) and defined($title)) {
 } else {
     print STDERR "Campos vacíos\n";
     print renderXML("<message>Faltan datos</message>");
+}
+
+# Función para verificar si el session_id es válido
+sub is_valid_session {
+    my $session_id = $_[0];
+
+    # Lógica para verificar el session_id en la base de datos
+    my $dsn = 'DBI:mysql:database=pweb1;host=db;port=3306';
+    my $dbh = DBI->connect($dsn, 'alumno', 'pweb1', { RaiseError => 1, PrintError => 0 })
+        or die("No se pudo conectar a la base de datos: $DBI::errstr\n");
+
+    # Verificar si el session_id existe en la base de datos
+    my $sql = "SELECT session_id FROM usuarios WHERE session_id = ?";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute($session_id);
+
+    my $result = $sth->fetchrow_array();
+    $sth->finish;
+    $dbh->disconnect;
+
+    return defined($result);  # Devuelve true si el session_id es válido, false en caso contrario
 }
 
 # Función para buscar en la base de datos

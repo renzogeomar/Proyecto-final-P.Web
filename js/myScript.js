@@ -377,8 +377,9 @@ function responseView(response){
  * borrar como argumentos, la respuesta del CGI debe ser atendida por doList
  */
 function doDelete(owner, title){
-  console.log('se va a eliminar',owner,title);
-  let url = 'cgi-bin/delete.pl?owner='+owner+'&title='+title;
+  let sessionId = sessionStorage.getItem('session_id');
+  console.log('se va a eliminar',owner,title,sessionId);
+  let url = 'cgi-bin/delete.pl?owner='+owner+'&title='+title+'&session_id='+sessionId;
   console.log("la url es ",url);
   var xml;
   let promise = fetch(url);
@@ -397,18 +398,21 @@ function doDelete(owner, title){
  */
 function doEdit(owner, title){
   console.log('se va a editarA;',owner,title);
-  let url = 'cgi-bin/article.pl?owner='+owner+'&title='+title;
+  let sessionId = sessionStorage.getItem('session_id');
+  if (!sessionId) {
+    showLogin();  // Función para redirigir a la página de inicio de sesión
+    return;
+  }
+  let url = 'cgi-bin/article.pl?owner='+owner+'&title='+title+'&session_id='+sessionId;
   console.log("la url es ",url);
-  var xml;
   let promise = fetch(url);
-  promise.then(response=>response.text()).then(data=>
-    {
-      xml = (new window.DOMParser()).parseFromString(data, "text/xml");
-      console.log("esto sale",xml);
-      responseEdit(xml) ;
-    }).catch(error=>{
-      console.log('Error :', error);
-    });
+  promise.then(response => response.text()).then(data => {
+    let xml = (new window.DOMParser()).parseFromString(data, "text/xml");
+    console.log("Esto sale", xml);
+    responseEdit(xml);  // Llamar a la función de respuesta de edición
+  }).catch(error => {
+    console.log('Error:', error);
+  });
 }
 /*
  * Esta función recibe la respuesta del CGI data.pl y muestra el formulario 
@@ -446,9 +450,14 @@ function responseEdit(xml){
 function doUpdate(title){
   let texto = document.getElementById('cuadrotext').value;
   console.log("es el texto a actualizar", texto);
+  let sessionId = sessionStorage.getItem('session_id');
+  if (!sessionId) {
+    showLogin();  // Redirigir a iniciar sesión si no existe el session_id
+    return;
+  }
   let url1 = 'cgi-bin/update.pl?title=' + encodeURIComponent(title) + '&text=';
   let textoencode = encodeURIComponent(texto);  // Asegúrate de que los saltos de línea y caracteres especiales estén bien codificados
-  let url3 = '&owner=' + encodeURIComponent(userKey);
+  let url3 = `&owner=${encodeURIComponent(userKey)}&session_id=${encodeURIComponent(sessionId)}`;
   let urlcomple = url1 + textoencode + url3;
   
   // Depuración: Imprime la URL completa antes de enviarla
