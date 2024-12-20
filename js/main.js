@@ -19,10 +19,29 @@ function showWelcome(){
   document.getElementById('main').innerHTML = html;
 }
 
-function showMenuUserLogged(){
-  let html = "<p onclick='showWelcome()'>Inicio</p>\n"+
-    "<p onclick='doList()'>Lista de Páginas</p>\n"+
-    "<p onclick='showNew()' class='rigthAlign'>Página Nueva</p>\n"
+function showMenuUserLogged() {
+  let html = "<p onclick='showWelcome()'>Inicio</p>\n" +
+    "<p onclick='doList()'>Lista de Páginas</p>\n" +
+    "<p onclick='showNew()' class='rigthAlign'>Página Nueva</p>\n" +
+    "<p onclick='doLogout()' class='rightAlign'>Cerrar Sesión</p>\n"; // Agregado botón de cierre de sesión
   document.getElementById('menu').innerHTML = html;
+}
+
+// Función para cerrar sesión
+function doLogout() {
+  // Eliminar session_id del sessionStorage
+  sessionStorage.removeItem('session_id');
+
+  // Llamar al script Perl para eliminar el session_id en la base de datos
+  fetch('cgi-bin/logout.pl')
+    .then(response => response.text())
+    .then(data => {
+      console.log(data);  // Ver la respuesta para verificar si la sesión se cerró correctamente
+      showLogin();        // Volver a mostrar el formulario de login
+    })
+    .catch(error => {
+      console.log('Error al cerrar sesión:', error);
+      showLogin();        // En caso de error, mostrar login
+    });
 }
 
