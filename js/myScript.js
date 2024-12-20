@@ -177,16 +177,20 @@ function doCreateAccount(){
  * La respuesta del CGI debe ser procesada por showList
  */
 function doList(){
-  console.log("este es el owne que sera enviado al cgi",userKey);
-  let url = 'cgi-bin/list.pl?owner='+userKey;
+  let owner = userKey;  // 'userKey' es el propietario (owner)
+  let sessionID = sessionStorage.getItem('session_id');  // Obtener el session_id desde sessionStorage
+  console.log("sesion id: ", sessionID);
+  console.log("Este es el owner que será enviado al CGI", owner);
+  let url = `cgi-bin/list.pl?owner=${owner}&session_id=${sessionID}`;
   console.log("este cgi se usara",url);
+
   let promise = fetch(url);
-  promise.then(response=>response.text()).then(data=>
-    {
-      xml = (new window.DOMParser()).parseFromString(data, "text/xml");
-      console.log(xml);
-      showList(xml);
-    }).catch(error=>{
+  promise.then(response => response.text())
+    .then(data => {
+      let xml = (new window.DOMParser()).parseFromString(data, "text/xml");
+      console.log("XML recibido:", xml);
+      showList(xml);  // Mostrar los artículos de la lista
+    }).catch(error => {
       console.log('Error :', error);
     });
 }
@@ -274,8 +278,15 @@ function doNew() {
     return;
   }
 
+  // Obtener el session_id desde sessionStorage
+  let sessionID = sessionStorage.getItem('session_id');  // Asegúrate de que session_id está en sessionStorage
+  if (!sessionID) {
+    alert("No se encontró la sesión.");
+    return;
+  }
+
   let url1 = 'cgi-bin/new.pl?title=' + encodeURIComponent(title) + '&text=' + encodeURIComponent(texto);
-  let url3 = '&owner=' + userKey;
+  let url3 = '&owner=' + encodeURIComponent(userKey) + '&session_id=' + encodeURIComponent(sessionID);
   let urlcomple = url1 + url3;
   console.log(urlcomple);
 

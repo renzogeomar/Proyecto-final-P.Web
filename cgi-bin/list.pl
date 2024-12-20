@@ -12,7 +12,7 @@ print $q->header('text/xml; charset=UTF-8');
 my $owner = $q->param('owner');
 my $session_id = $q->param('session_id');
 print STDERR "$owner\n";
-
+print STDERR "Session ID recibido: $session_id\n";  # Verificar el valor de session_id
 # Verificar si el session_id es válido
 if (!defined($session_id) || !is_valid_session($session_id)) {
     print renderXML("<message>Sesión no válida</message>");
