@@ -35,7 +35,7 @@ if (defined($user) and defined($password)) {
         
         print STDERR "Nuevo session_id generado: $session_id\n";
         print STDERR "Enviando datos correctos al XML\n";
-        my $cuerpoXML = renderCuerpo(@respuesta);
+        my $cuerpoXML = renderCuerpo(@respuesta, $session_id);  # Pasar session_id a renderCuerpo
         print renderXML($cuerpoXML);
     } else {
         print STDERR "No hay coincidencias, enviando mensaje de error\n";
@@ -68,6 +68,7 @@ sub checkLogin {
 
     return @row;
 }
+
 sub storeSessionID {
     my ($user, $session_id) = @_;
     
@@ -88,7 +89,9 @@ sub storeSessionID {
 
 sub renderCuerpo {
     my @linea = @_;
+    my $session_id = pop @linea;  # El último argumento es el session_id
     my $cuerpo = <<"CUERPO";
+    <session_id>$session_id</session_id>
     <owner>$linea[0]</owner>
     <firstName>$linea[2]</firstName>
     <lastName>$linea[3]</lastName>

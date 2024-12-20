@@ -5,6 +5,8 @@
  */
 
 var xml;
+var userFullName = '';
+var userKey = '';
 function showLogin(){
   let formhtml = `<label>User</label><br>
               <input type ="text" id="user" name ="user" ><br>
@@ -27,15 +29,32 @@ function doLogin(){
   console.log('URL:', `cgi-bin/login.pl?user=${user}&password=${password}`);
   let url = 'cgi-bin/login.pl?user='+user+'&password='+password;
   console.log(url);
-  var xml;
-  let promise = fetch(url);
-  promise.then(response=>response.text()).then(data=>
-    {
-      xml = (new window.DOMParser()).parseFromString(data, "text/xml");
-      console.log(xml);
-      loginResponse(xml) ;
-    }).catch(error=>{
-      console.log('Error :', error);
+
+  fetch(url)
+    .then(response => {
+      console.log("Respuesta del servidor recibida...");
+      return response.text();
+    })
+    .then(data => {
+      console.log("Procesando respuesta...");
+      let xml = (new window.DOMParser()).parseFromString(data, "text/xml");
+      console.log("XML recibido:", data);  // Verificar los datos que estamos recibiendo
+
+      let sessionID = xml.getElementsByTagName('session_id')[0]?.textContent;
+
+      if (sessionID) {
+        console.log("Sesión encontrada. Almacenando session_id...");
+        // Almacenar el session_id en sessionStorage
+        sessionStorage.setItem('session_id', sessionID);
+        loginResponse(xml);  // Llamamos a la función de respuesta con los datos XML
+      } else {
+        console.log("No se encontró session_id. Datos incorrectos.");
+        document.getElementById('mensaje').innerHTML = "Datos incorrectos";
+        showLogin();
+      }
+    })
+    .catch(error => {
+      console.log("Error en la solicitud de login:", error);  // Verificar si ocurre un error en la solicitud
     });
 
 }
@@ -54,6 +73,10 @@ function loginResponse(xml) {
     var owner = usuario[0].getElementsByTagName('owner')[0]?.textContent; // Agregar seguridad contra valores undefined
     var firstName = usuario[0].getElementsByTagName('firstName')[0]?.textContent;
     var lastName = usuario[0].getElementsByTagName('lastName')[0]?.textContent;
+
+    console.log(owner);
+    console.log(firstName);
+    console.log(lastName);
 
     if (owner && firstName && lastName) {
       userFullName = `${firstName} ${lastName}`;
