@@ -14,14 +14,23 @@ print STDERR "RAW QUERY STRING: " . $q->query_string . "\n";
 my $title = $q->param('title');
 my $text = $q->param('text');
 my $owner = $q->param('owner');
+my $session_id = $q->param('session_id');  # Nuevo parámetro session_id
 
 # Decodificar los parámetros para manejar caracteres especiales
 $title = uri_unescape($title);
 $text = uri_unescape($text);
 $owner = uri_unescape($owner);
+$session_id = uri_unescape($session_id);
 
 # Depuración: Ver los valores recibidos antes de cualquier modificación
 print STDERR "Valores recibidos antes de modificación - Title: '$title', Text: '$text', Owner: '$owner'\n";
+print STDERR "sesion id- $session_id'\n";
+
+if (defined($session_id) && !es_session_valida($session_id, $owner)) {
+    print STDERR "Sesión inválida o expiró\n";
+    print renderXML("<message>Sesión inválida o expiró</message>");
+    exit;
+}
 
 # Si alguno de los parámetros está vacío, mostrar el error y salir
 if (!defined($title) || $title eq '' || !defined($text) || $text eq '' || !defined($owner) || $owner eq '') {
@@ -66,6 +75,31 @@ if (validarArray(@parametros) == 3) {
 } else {
     print STDERR "Faltan campos\n";  # Mejorar la depuración aquí
     print renderXML("<message>Faltan datos en el formulario</message>");
+}
+
+sub es_session_valida {
+    my ($session_id, $owner) = @_;
+    
+    my $user = 'alumno';
+    my $password = 'pweb1';
+    my $dsn = 'DBI:MariaDB:database=pweb1;host=db;port=3306';
+
+    # Conectar a la base de datos
+    my $dbh = DBI->connect($dsn, $user, $password, { RaiseError => 1, PrintError => 0 })
+        or die("No se pudo conectar: $DBI::errstr");
+
+    # Verificar si existe el session_id para el owner
+    my $sql = "SELECT session_id FROM usuarios WHERE session_id = ? AND userName = ?";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute($session_id, $owner);
+
+    # Si se encuentra el session_id, es válido
+    my $valid_session = $sth->fetchrow_array;
+    
+    $sth->finish;
+    $dbh->disconnect;
+
+    return defined($valid_session);  # Retorna verdadero si se encuentra el session_id
 }
 
 # Función para actualizar los datos en la base de datos
