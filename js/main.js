@@ -33,7 +33,7 @@ function doLogout() {
   sessionStorage.removeItem('session_id');
 
   // Llamar al script Perl para eliminar el session_id en la base de datos
-  fetch('/cgi-bin/sesison_manager.pl')
+  fetch('/cgi-bin/logout.pl')
     .then(response => response.text())
     .then(data => {
       console.log(data);  // Ver la respuesta para verificar si la sesión se cerró correctamente
