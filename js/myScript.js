@@ -326,6 +326,7 @@ function responseNew(response) {
     let textContent = texto[0].textContent.trim();
     
     if (title.length > 0 && textContent.length > 0) {
+      
       let cuerpohtml = `
         <h1>${title}</h1>
         <p>${textContent}</p>

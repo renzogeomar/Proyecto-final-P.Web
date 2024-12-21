@@ -10,6 +10,14 @@ body {
   background-position: center; /* Centra la imagen */
   background-repeat: no-repeat; /* Evita que la imagen se repita */
   background-attachment: fixed; /* La imagen se mantiene fija al hacer scroll */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Asegura que el contenedor ocupe al menos el 100% de la altura de la ventana */
+  margin: 0; /* Elimina el margen por defecto */
+}
+
+.main-content {
+  flex-grow: 1; /* El contenido principal crece y ocupa el espacio disponible */
 }
 
 .header {
@@ -55,16 +63,20 @@ body {
 /* Left column */
 .leftcolumn {   
   float: left;
-  width: 75%;
+  width: 73%;
+  margin-right: 20px;  /* Añadir espacio entre las columnas */
 }
 
 /* Colum derecha */
 .rightcolumn {
   float: left;
   width: 25%;
-  background-color: #f1f1f1;
+  background-color: rgba(255, 255, 255, 0.5); /* Fondo semitransparente */
+  backdrop-filter: blur(8px); /* Efecto de desenfoque de fondo */
   padding-left: 20px;
   border-radius: 15px; /* Bordes redondeados */
+  margin-top: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave para dar el efecto de profundidad */
 }
 
 /* Fake image */
