@@ -11,31 +11,37 @@ body {
 .header {
   background-color: rgb(167, 167, 167);
   text-align: center;
-  padding: 20px;
+  padding: 5px;
   border-radius: 15px; /* Bordes redondeados */
 }
 
 /* The navbar container */
 .topnav {
   overflow: hidden;
-  background-color: #333;
+  background-color: rgba(255, 255, 255, 0.2); /* Blanco con transparencia */
   border-radius: 15px; /* Bordes redondeados */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  transition: background-color 0.3s ease; /* Transición para el hover */
 }
 
 /* Navbar links */
 .topnav p {
   float: left;
   display: block;
-  color: #f2f2f2;
+  color: #333; /* Color del texto */
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
+  font-weight: bold; /* Hacer el texto más visible */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
 }
 
 /* Links - change color on hover */
 .topnav p:hover {
-  background-color: #ddd;
-  color: black;
+  background-color: rgba(255, 255, 255, 1); /* Blanco sólido */
+  color: #007BFF; /* Azul más vivo para resaltar */
+  transform: scale(1.05); /* Efecto de zoom ligero */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave al pasar */
 }
 
 /* Create two unequal columns that floats next to each other */
