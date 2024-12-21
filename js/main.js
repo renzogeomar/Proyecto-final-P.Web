@@ -2,7 +2,7 @@ var userFullName = '';
 var userKey = '';
 
 window.addEventListener('load', showWelcome);
-function showWelcome(){
+function showWelcome() {
   let html = '<h2>Bienvenido ' + userFullName + '</h2>\n';
   html += `
           <p>Este sistema fue desarrollado por alumnos del primer año de la Escuela Profesional de Ingeniería de Sistemas, de la Universidad Nacional de San Agustín de Arequipa</p>
@@ -22,8 +22,15 @@ function showWelcome(){
 function showMenuUserLogged() {
   let html = "<p onclick='showWelcome()'>Inicio</p>\n" +
     "<p onclick='doList()'>Lista de Páginas</p>\n" +
-    "<p onclick='showNew()' class='rigthAlign'>Página Nueva</p>\n" +
-    "<p onclick='doLogout()' class='rightAlign'>Cerrar Sesión</p>\n"; // Agregado botón de cierre de sesión
+    "<p onclick='showNew()' class='rightAlign'>Página Nueva</p>\n" +
+    "<p onclick='doLogout()' class='rightAlign'>Cerrar Sesión</p>\n";
+  document.getElementById('menu').innerHTML = html;
+}
+
+function showMenuUserNotLogged() {
+  let html = "<p onclick='showWelcome()'>Inicio</p>\n" +
+    "<p onclick='showLogin()'>Identificarse</p>\n" +
+    "<p onclick='showCreateAccount()' class='rightAlign'>Crear Cuenta</p>\n";
   document.getElementById('menu').innerHTML = html;
 }
 
@@ -35,6 +42,7 @@ function doLogout() {
   if (!session_id) {
     console.log('No hay sesión activa');
     showLogin(); // Si no hay session_id, redirigir a login
+    showMenuUserNotLogged(); // Actualizar el menú
     return;
   }
 
@@ -53,10 +61,11 @@ function doLogout() {
   .then(data => {
     console.log(data);  // Ver la respuesta para verificar si la sesión se cerró correctamente
     showLogin();        // Volver a mostrar el formulario de login
+    showMenuUserNotLogged(); // Actualizar el menú para el estado sin sesión
   })
   .catch(error => {
     console.log('Error al cerrar sesión:', error);
     showLogin();        // En caso de error, mostrar login
+    showMenuUserNotLogged(); // Actualizar el menú para el estado sin sesión
   });
 }
-
