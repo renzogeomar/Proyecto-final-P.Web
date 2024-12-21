@@ -164,7 +164,7 @@ form input[type="text"], form input[type="password"] {
 
 form input[type="submit"], form button {
   width: 100%;
-  background-color: #007BFF;
+  background-color: rgba(0, 123, 255, 0.8);
   color: white;
   padding: 14px 20px;
   border: none;
@@ -172,11 +172,57 @@ form input[type="submit"], form button {
   cursor: pointer;
   font-size: 16px;
   margin-bottom: 15px; /* Espacio entre los botones */
+  backdrop-filter: blur(5px);
 }
 
 form input[type="submit"]:hover, form button:hover {
-  background-color: #0056b3; /* Azul más oscuro en hover */
+  background-color: rgba(0, 86, 179, 0.8); /* Azul más oscuro con opacidad */
+  transform: scale(1.05); /* Efecto de agrandar ligeramente al pasar el ratón */
 }
 form .form-group {
   margin-bottom: 20px;
+} 
+
+/* Estilo para la lista ordenada (ol) */
+ol {
+  list-style-type: decimal; /* Estilo de numeración por defecto */
+  padding-left: 20px; /* Espacio a la izquierda */
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Estilo para los elementos de la lista (li) */
+ol li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc; /* Línea sutil entre elementos */
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.3); /* Fondo suave para cada artículo */
+  border-radius: 5px;
+}
+
+/* Estilo para los botones dentro de cada artículo */
+ol li button {
+  background-color: rgba(0, 123, 255, 0.8); /* Color azul para los botones */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  margin: 5px 10px; /* Separación entre los botones */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+/* Efecto hover para los botones */
+ol li button:hover {
+  background-color: rgba(0, 86, 179, 0.8); /* Azul más oscuro con opacidad */
+  transform: scale(1.05); /* Efecto de agrandar ligeramente al pasar el ratón */
+}
+
+/* Estilo cuando no hay artículos */
+#main p {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
 }

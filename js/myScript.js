@@ -442,13 +442,14 @@ function responseEdit(xml){
 
   var formhtml = "";
   formhtml += `
-             <label>Titulo</label>
-             <h1>`+title+`</h1><br>
-             <label > texto</label>
-             <textarea style = "width:180px; height:150px" id = "cuadrotext" name ="texto">`+
-    texto+`</textarea><br>
-             <button onclick ="doUpdate(`+`'`+title+`'`+`)">Actualizar</button>`+`
-                 <button onclick = "doList()">Cancelar</button>`;
+    <form onsubmit="doUpdate('` + title + `'); return false;">
+      <h1>` + title + `</h1><br>
+      <label>Texto</label>
+      <textarea id="cuadrotext" name="texto" style="width:100%; height:150px; padding: 10px;">` + texto + `</textarea><br>
+      <button type="submit">Actualizar</button>
+      <button type="button" onclick="doList()">Cancelar</button>
+    </form>
+  `;
   document.getElementById('main').innerHTML = formhtml;
 }
 /*
