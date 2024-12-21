@@ -8,12 +8,16 @@ var xml;
 var userFullName = '';
 var userKey = '';
 function showLogin(){
-  let formhtml = `<label>User</label><br>
-              <input type ="text" id="user" name ="user" ><br>
-              <label> password </label><br>
-              <input type ="password" id="password" name ="password"><br>
-              <button onclick ="doLogin()">Ingresar</button> 
-              <p id="mensaje" ></p>`;
+  let formhtml = `
+    <form onsubmit="doLogin(); return false;">  <!-- Añadido onsubmit -->
+      <label>User</label><br>
+      <input type="text" id="user" name="user"><br>
+      <label>Password</label><br>
+      <input type="password" id="password" name="password"><br>
+      <button type="submit">Ingresar</button> 
+      <p id="mensaje"></p>
+    </form>
+  `;
   document.getElementById('main').innerHTML = formhtml;
 }
 /**
@@ -112,17 +116,20 @@ function showLoggedIn(){
  * función doCreateAccount
  * */
 function showCreateAccount(){
-  let formhtml = 
-    `<label>Username</label><br>
-              <input type ="text" id="username" name ="user" ><br>
-              <label>Firstname </label><br>
-              <input type ="text" id="firstname" name ="firstname"><br>
-              <label>Lastname </label><br>
-              <input type ="text" id="lastname" name ="lastname"><br>
-              <label>Password </label><br>
-              <input type ="password" id="password" name ="password"><br>
-              <button onclick ="doCreateAccount()">Registrar</button> 
-              <p id="mensaje" ></p>`;
+  let formhtml = `
+    <form onsubmit="doCreateAccount(); return false;">  <!-- Añadido onsubmit -->
+      <label>Username</label><br>
+      <input type="text" id="username" name="user"><br>
+      <label>Firstname</label><br>
+      <input type="text" id="firstname" name="firstname"><br>
+      <label>Lastname</label><br>
+      <input type="text" id="lastname" name="lastname"><br>
+      <label>Password</label><br>
+      <input type="password" id="password" name="password"><br>
+      <button type="submit">Registrar</button> 
+      <p id="mensaje"></p>
+    </form>
+  `;
   document.getElementById('main').innerHTML = formhtml;
 
 
@@ -250,13 +257,15 @@ function showList(xml) {
  */
 function showNew() {
   var formhtml = "";
-  formhtml += `
-    <label>Titulo</label>
-    <input type="text" id="titulo" name="titulo" value=""><br>
-    <label>Texto</label>
-    <textarea style="width:180px; height:150px" id="cuadrotext" name="texto"></textarea><br>
-    <button type="button" onclick="doNew()">Enviar</button>
-    <button type="button" onclick="doList()">Cancelar</button>
+  formhtml = `
+    <form onsubmit="doNew(); return false;">  <!-- Añadido onsubmit -->
+      <label>Título</label>
+      <input type="text" id="titulo" name="titulo" value=""><br>
+      <label>Texto</label>
+      <textarea style="width:355px; height:200px" id="cuadrotext" name="texto"></textarea><br>
+      <button type="submit">Enviar</button>
+      <button type="button" onclick="doList()">Cancelar</button>
+    </form>
   `;
   document.getElementById('main').innerHTML = formhtml;
 }

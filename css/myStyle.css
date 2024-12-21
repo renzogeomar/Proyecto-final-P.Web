@@ -5,20 +5,27 @@
 body {
   font-family: Candara;
   padding: 10px;
-  background: #dfdfdf;
+  background-image: url(fondo.jpg);
+  background-size: cover; /* Escala la imagen para cubrir todo el fondo */
+  background-position: center; /* Centra la imagen */
+  background-repeat: no-repeat; /* Evita que la imagen se repita */
+  background-attachment: fixed; /* La imagen se mantiene fija al hacer scroll */
 }
 
 .header {
-  background-color: rgb(167, 167, 167);
+  background-color: rgb(167, 167, 167, 0.4);
+  backdrop-filter: blur(8px);
   text-align: center;
-  padding: 5px;
+  padding: 0.5px;
   border-radius: 15px; /* Bordes redondeados */
 }
 
 /* The navbar container */
 .topnav {
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.2); /* Blanco con transparencia */
+  background-color: rgba(255, 255, 255, 0.5); /* Blanco con transparencia */
+  backdrop-filter: blur(8px); /* Desenfoque del fondo detrás del elemento */
+  -webkit-backdrop-filter: blur(8px);
   border-radius: 15px; /* Bordes redondeados */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
   transition: background-color 0.3s ease; /* Transición para el hover */
@@ -38,7 +45,7 @@ body {
 
 /* Links - change color on hover */
 .topnav p:hover {
-  background-color: rgba(255, 255, 255, 1); /* Blanco sólido */
+  background-color: rgba(255, 255, 255, 0.5); /* Blanco sólido */
   color: #007BFF; /* Azul más vivo para resaltar */
   transform: scale(1.05); /* Efecto de zoom ligero */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave al pasar */
@@ -70,7 +77,8 @@ body {
 
 /* Add a card effect for articles */
 .card {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
   padding: 20px;
   margin-top: 20px;
   border-radius: 15px; /* Bordes redondeados */
@@ -85,9 +93,10 @@ body {
 
 /* Footer */
 .footer {
-  padding: 20px;
+  padding: 10px;
   text-align: center;
-  background: #ddd;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
   margin-top: 20px;
   overflow: hidden;
   border-radius: 15px; /* Bordes redondeados */
@@ -118,12 +127,16 @@ body {
 
 /* Estilo para el formulario */
 form {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.2); /* Fondo semitransparente */
   padding: 20px;
-  border-radius: 15px; /* Bordes redondeados */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Sombra más intensa para dar el efecto de ventana opaca */
   max-width: 400px;
-  margin: 20px auto; /* Centrar el formulario */
+  margin: 20px auto;
+  font-family: 'Arial', sans-serif;
+  backdrop-filter: blur(5px); /* Efecto de filtro de desenfoque */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Sombra/contorno sutil */
+  
 }
 
 form h2 {
@@ -149,18 +162,21 @@ form input[type="text"], form input[type="password"] {
   box-sizing: border-box;
 }
 
-form input[type="submit"] {
+form input[type="submit"], form button {
   width: 100%;
-  background-color: #4CAF50;
+  background-color: #007BFF;
   color: white;
   padding: 14px 20px;
-  margin: 8px 0;
   border: none;
-  border-radius: 5px; 
+  border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  margin-bottom: 15px; /* Espacio entre los botones */
 }
 
-form input[type="submit"]:hover {
-  background-color: #45a049;
+form input[type="submit"]:hover, form button:hover {
+  background-color: #0056b3; /* Azul más oscuro en hover */
+}
+form .form-group {
+  margin-bottom: 20px;
 }
