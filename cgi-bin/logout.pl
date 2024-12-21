@@ -4,48 +4,51 @@ use warnings;
 use CGI;
 use DBI;
 use CGI::Carp qw(fatalsToBrowser);
-use CGI::Session;
 
+# Crear un objeto CGI para manejar los parámetros
 my $q = CGI->new;
+
+# Establecer el encabezado de la respuesta como texto XML
 print $q->header('text/xml;charset=UTF-8');
-print STDERR "conexion";
 
-# Recuperar el session_id de la sesión
-my $session_id = $q->param('session_id');  # Enviamos el session_id al script
+# Obtener el session_id desde la solicitud POST
+my $session_id = $q->param('session_id');
 
-# Recuperar las variables de entorno para la conexión
-my $db_host = $ENV{'DB_HOST'} || 'db';  # Si no está en el entorno, usar 'db' como host
-my $db_name = $ENV{'DB_NAME'} || 'pweb1';
-my $db_user = $ENV{'DB_USER'} || 'alumno';
-my $db_password = $ENV{'DB_PASSWORD'} || 'pweb1';
-
-# Comprobar si el session_id está presente
-if (defined($session_id)) {
+# Comprobar si session_id está presente
+if (defined($session_id) && $session_id ne '') {
     # Llamar a la función que elimina el session_id en la base de datos
-    removeSessionID($session_id);
+    eliminarSessionID($session_id);
     print renderXML('<message>Sesión cerrada correctamente</message>');
 } else {
     print renderXML('<message>No se proporcionó session_id</message>');
 }
 
-sub removeSessionID {
-    my ($session_id) = @_;
-
-    # Usamos las variables de entorno para la conexión
-    my $dsn = "DBI:mysql:database=$db_name;host=$db_host;port=3306";
+# Función para eliminar el session_id de la base de datos
+sub eliminarSessionID {
+    my $session_id = $_[0];  # El session_id que se recibe como parámetro
     
-    # Intentamos la conexión a la base de datos
-    my $dbh = DBI->connect($dsn, $db_user, $db_password, { RaiseError => 1, PrintError => 0 })
-        or die("No se pudo conectar: $DBI::errstr\n");
+    # Datos de conexión
+    my $user = 'alumno';
+    my $password = 'pweb1';
+    my $dsn = 'DBI:MariaDB:database=pweb1;host=db;port=3306';  # Usar 'db' como host en Docker Compose
     
-    # Actualizamos el session_id en la base de datos para que sea NULL
+    # Conectar a la base de datos
+    my $dbh = DBI->connect($dsn, $user, $password, { RaiseError => 1, PrintError => 0 })
+        or die("No se pudo conectar a la base de datos: $DBI::errstr\n");
+    
+    # Consulta SQL para actualizar session_id a NULL
     my $sql = "UPDATE usuarios SET session_id = NULL WHERE session_id = ?";
     my $sth = $dbh->prepare($sql);
-    $sth->execute($session_id);
+    $sth->execute($session_id);  # Ejecutamos la consulta con el session_id proporcionado
+    
+    # Finalizar la consulta y desconectar
     $sth->finish;
     $dbh->disconnect;
+    
+    print "Session_id eliminado correctamente de la base de datos\n";
 }
 
+# Función para generar la respuesta XML
 sub renderXML {
     my $cuerpoxml = $_[0];
     my $xml = <<"XML";

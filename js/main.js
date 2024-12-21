@@ -29,19 +29,34 @@ function showMenuUserLogged() {
 
 // Función para cerrar sesión
 function doLogout() {
+  // Recuperar el session_id del sessionStorage
+  var session_id = sessionStorage.getItem('session_id');
+
+  if (!session_id) {
+    console.log('No hay sesión activa');
+    showLogin(); // Si no hay session_id, redirigir a login
+    return;
+  }
+
   // Eliminar session_id del sessionStorage
   sessionStorage.removeItem('session_id');
 
-  // Llamar al script Perl para eliminar el session_id en la base de datos
-  fetch('/cgi-bin/logout.pl')
-    .then(response => response.text())
-    .then(data => {
-      console.log(data);  // Ver la respuesta para verificar si la sesión se cerró correctamente
-      showLogin();        // Volver a mostrar el formulario de login
-    })
-    .catch(error => {
-      console.log('Error al cerrar sesión:', error);
-      showLogin();        // En caso de error, mostrar login
-    });
+  // Enviar el session_id al servidor para eliminarlo de la base de datos
+  fetch('/cgi-bin/logout.pl', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: 'session_id=' + encodeURIComponent(session_id) // Enviar session_id como parte del cuerpo
+  })
+  .then(response => response.text())
+  .then(data => {
+    console.log(data);  // Ver la respuesta para verificar si la sesión se cerró correctamente
+    showLogin();        // Volver a mostrar el formulario de login
+  })
+  .catch(error => {
+    console.log('Error al cerrar sesión:', error);
+    showLogin();        // En caso de error, mostrar login
+  });
 }
 
