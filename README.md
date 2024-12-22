@@ -1,4 +1,4 @@
-Pasos para correr el contenedor:
-primero: docker-compose build
-segundo: docker-compose up
+Pasos para correr el contenedor: \n
+primero: docker-compose build \n
+segundo: docker-compose up \n
 tercero: http://localhost:8080/
